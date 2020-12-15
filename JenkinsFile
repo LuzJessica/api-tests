@@ -1,0 +1,72 @@
+@Library('matera-builder')
+@Library('release-libraries') _
+
+pipeline {
+    agent {
+        node {
+            label 'dbtest'
+            customWorkspace '/home/jenkins/workspace/'
+        }
+    }
+	
+    stages {
+        stage("Checkout") {
+            steps {
+                script {
+                    env.LANG = "pt_BR.UTF-8"
+                }
+                git branch: 'develop', poll: true, credentialsId: '2a64b1d3-8c92-4ee8-8db0-b766ec6f9c84', url: 'ssh://git@stash.matera.com:7999/uc/cobranca.git'
+
+                withCredentials([usernamePassword(credentialsId: 'nexusAdmin', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'docker login -u $USERNAME -p $PASSWORD docker-aws.matera.com:5000'
+                }
+            }
+        }
+
+        stage("Run Database") {
+            steps {
+                sh 'docker pull docker-aws.matera.com:5000/fixture-banco'
+                sh 'docker run --rm -d --shm-size 1G -p 1521:1521 --name dbtest docker-aws.matera.com:5000/fixture-banco'
+            }
+        }
+
+        stage('Build') {
+            tools { 
+                maven 'Maven 3.3.9'
+            }
+            steps {
+                script {
+                    shell withMaven: 'mvn clean install -DskipTests -U'
+                }
+            }
+        } 
+
+        stage("Spring Boot") {
+            steps {
+                dir('webapp/target') {
+                    sh 'pwd'
+                    sh 'java -jar sdcobr.war &'
+					sh 'docker inspect -f "{{ .NetworkSettings.IPAddress }}" $(docker ps -aq)'
+					sh 'ifconfig'
+                }
+				sleep 200 // seconds
+            }
+        }
+        
+        stage('Run Node & Newman') {
+            agent { 
+                docker {
+                    image 'node:12.10'
+                    reuseNode true
+                }
+            } 
+            steps {
+                sh 'npm install -g newman'
+                dir('others/tests') {
+                    sh 'chmod +x exec_collections.sh'
+                    sh './exec_collections.sh'
+                }
+            }
+        }
+    }
+}

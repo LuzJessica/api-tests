@@ -1,0 +1,342 @@
+{
+	"info": {
+		"_postman_id": "d1fe83c3-5302-4e4a-af58-f5d094c482fc",
+		"name": "BENEFICIÁRIOS - Consulta unico",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "BENEFICIÁRIOS - Consulta unico",
+			"item": [
+				{
+					"name": "Request sem OAuth Token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "2475e7d2-8ed5-4d90-8f09-fe9942905f51",
+								"exec": [
+									"postman.setGlobalVariable(\"profile\", \"prod\"); // \"dev\" or \"prod\"\r",
+									"\r",
+									"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+									"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+									"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+									"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+									"} else {\r",
+									"  postman.setGlobalVariable(\"url\", \"172.17.0.2\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+									"}\r",
+									"\r",
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "3e4bb9c5-41c1-42ed-884c-a599b1c7e213",
+								"exec": [
+									"pm.test(\"Status code is 401 Unauthorized\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requisitando OAuth",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/oauth/token?grant_type=client_credentials",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inserindo beneficiário para consultar",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "19939789-18f0-4bf6-aaea-c76520e8eaeb",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "edb0b706-4c11-4cc1-a592-2b0f696dfc65",
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idBeneficiario\": 4,\r\n  \"cpfCnpjBeneficiario\": \"17300036805\",\r\n  \"tipoPessoaBeneficiario\": \"F\",\r\n  \"idGerente\": 2,\r\n  \"cpfCnpjGerente\": \"72352205387\",\r\n  \"tipoPessoaGerente\": \"F\",\r\n  \"email\": \"jessica.luz@matera.com\",\r\n  \"regraTituloDuplicado\": 1,\r\n  \"acaoCreditoBeneficiarioInapto\": 1,\r\n  \"arquivoCnab\": {\r\n    \"tipoLayout\": 0,\r\n    \"agenciaConvencaoNome\": 1,\r\n    \"contaConvencaoNome\": 201359,\r\n    \"confereSequencialRemessa\": false,\r\n    \"sequencialRemessa\": 0,\r\n    \"sequencialRetorno\": 0,\r\n    \"formaGeracaoRetorno\": \"U\",\r\n    \"notificacaoBaixaOperacional\": \"N\",\r\n    \"tipoQuebraArquivoRetorno\": \"1\",\r\n    \"usaGeracaoManual\": false,\r\n    \"usaGeracaoDiretorioBeneficiario\": false,\r\n    \"usaGeracaoConvencaoNome\": false,\r\n    \"mascaraArqUnicoConvencaoNome\": \"[agencia][conta][full]\",\r\n    \"mascaraArqParcialConvencaoNome\": \"[agencia][conta][part]\"\r\n  },\r\n  \"mensagens\": [\r\n    {\r\n      \"codigo\": \"01\",\r\n      \"ordem\": 0\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request consulta por id do beneficiário",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ddfdbb9f-adbf-414e-be65-b59e37a26c53",
+								"exec": [
+									"postman.setGlobalVariable(\"profile\", \"dev\"); // \"dev\" or \"prod\"\r",
+									"\r",
+									"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+									"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+									"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+									"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+									"} else {\r",
+									"  postman.setGlobalVariable(\"url\", \"172.17.0.1\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+									"}\r",
+									"\r",
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dc50ce0f-c832-44fd-b01d-f5c410073110",
+								"exec": [
+									"pm.test(\"Status code is 200 Unauthorized\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Removendo beneficiário inserido anteriormente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "382867b4-5b97-496f-a54c-86b2307b48c1",
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

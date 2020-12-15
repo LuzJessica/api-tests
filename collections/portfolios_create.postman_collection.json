@@ -1,0 +1,4360 @@
+{
+	"info": {
+		"_postman_id": "ce0baf5e-4b73-44e3-b22f-be5bb01317a7",
+		"name": "PORTFOLIOS - Create",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PORTFOLIOS - Create",
+			"item": [
+				{
+					"name": "Request without OAuth Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "96025c44-6883-40ca-80f1-4b9aa6e77589",
+								"exec": [
+									"pm.test(\"Status code is 401 Unauthorized\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "dae6f00d-210b-4d2b-bca4-e32b18061e20",
+								"exec": [
+									"postman.setGlobalVariable(\"profile\", \"prod\"); // \"dev\" or \"prod\"\r",
+									"\r",
+									"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+									"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+									"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+									"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+									"} else {\r",
+									"  postman.setGlobalVariable(\"url\", \"172.17.0.2\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+									"}\r",
+									"\r",
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requesting OAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "27aef32b-c739-4e4c-a218-a0947c97919e",
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"token\"  ,\"Bearer \" + response.access_token);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "efe05057-6e23-4b14-baeb-4ac962e0d4ee",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{secret}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/oauth/token?grant_type=client_credentials",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with portfolioId String",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f633e8de-4642-451f-8ff3-c3faf23704ec",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo portfolioId do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioId\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b357e3b5-6ca5-44a3-8b73-1d3f2dac64ce",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": \"99\",\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with portfolioId with more than 2 digits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c7f20e29-f715-41a0-946b-e52c896ad462",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Max\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo portfolioId: deve ser menor ou igual a 99. Valor informado: [\"+ request.portfolioId + \"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioId\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9d73f6aa-9a09-4b87-83c9-08223e845398",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 123,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body whitout field portfolioId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a737a671-1fa2-46e1-baa9-30795a014bb9",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo portfolioId: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioId\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "58e639d7-a140-4bf6-a187-2fda9a91ef3c",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field portfolioId = 0",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "65d5e609-8569-4576-8427-1d72f97ca373",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Min\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo portfolioId: deve ser maior ou igual a 1. Valor informado: [\" + request.portfolioId +\"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioId\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7254c585-cd2c-4f5b-b3f4-8bdefa630584",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 0,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field portfolioId = null",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "849a8fb5-64e6-4759-b998-db5a124cdc8a",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo portfolioId: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioId\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ef6fe08e-f9ea-475b-bfb5-790591bb3a00",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": null,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field description = null",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "79baeaf8-8285-454f-8f60-8056ed43743a",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo description: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"description\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "76b35d59-cd8b-4da5-b0c9-b12ed4ed6bbe",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": null,\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field description with more than 30 characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "24684deb-5ed3-4b4e-be60-2f997a1a6dec",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Size\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo description: tamanho deve estar entre 1 e 30. Valor informado: [\"+ request.description +\"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"description\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4636ef41-d065-4edb-9a2a-f164678ca825",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"ESTA DESCRICAO CONTEM MAIS DE 30 CARACTERES\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}\r\n  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with description field  empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a2070afd-2509-44c5-8bd0-888a67b3dfc2",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Size\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo description: tamanho deve estar entre 1 e 30. Valor informado: [\"+ request.description +\"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"description\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ab159b32-631c-4323-b8a6-648338ca269a",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body without field portfolioType",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a19ec414-d0a7-4d0d-83e8-02f90b636c11",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo portfolioType: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "56db7598-ae27-4d68-9aba-e098cbd7802d",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field portfolioType empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "eb2bae40-aad4-4ef1-b768-faaaa9f2213d",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo portfolioType do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "57b42504-2893-4f46-ac20-27dbc7ac27cf",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field portfolioType null",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9bc63c80-255d-414a-8039-c8b8c56cb561",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo portfolioType: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "172c4b27-3f47-43d1-a856-60998b445cc4",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": null,\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field portfolioType out of domain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f47b6103-b457-4973-acd5-a4e449fa122b",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo portfolioType do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "31aa3c51-13d4-4c0c-93b8-6485edf43b28",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"W\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field portfolioType = G",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2484369f-d001-4737-b489-0c457458922e",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo portfolioType do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"portfolioType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "949f21ea-7c74-48e6-a556-f120a0c1660c",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"G\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field feeType = string",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e68d878c-a3cd-48cf-9ee4-c8e312f5404a",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo feeType do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"feeType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7753c70a-94b0-40fd-bf63-f463a3494323",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": \"10\",\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field feeType with more than 2 digits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "548955bc-ae86-41f2-8f01-db55212b4442",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Max\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo feeType: deve ser menor ou igual a 99. Valor informado: [\"+ request.feeType + \"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"feeType\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6eed16c0-4001-4dbc-9d6d-59713e54e1ad",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 102,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body without currency field",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "91922330-3ba8-45e2-8059-e8f8539cf243",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "0f8104ab-5b06-49c5-a4b3-87f2f1819296",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deleting previousy inserted Portfolio",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7d19ff83-b63e-494b-a485-090de4a34cd7",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field currency with more than 10 characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ec27f630-2177-441d-816b-83dacb99fa58",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Size\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo currency: tamanho deve estar entre 1 e 10. Valor informado: [\"+ request.currency + \"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"currency\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6462dbc5-d6f3-4263-89ee-7f82e583038a",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"LIBRAS ESTERLINAS\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}\r\n\r\n ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field generateRemittanceFile = string",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b23ba18a-7c64-4a67-b2ff-6d9096ac58e8",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo generateRemittanceFile do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"generateRemittanceFile\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b5b8331b-0be0-427e-bbff-ba423ce8cd2f",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": \"true\",\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field sendBoletoEmail = string",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "62954a93-120c-4987-ab70-abf985c54c34",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo sendBoletoEmail do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"sendBoletoEmail\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "38a3baf7-63a6-44c1-926e-2d9887138f0f",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": \"false\",\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = string",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d79469b2-b6bc-4149-b776-d8a24932a01a",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo collateral.allowBoletoAsColaterall do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"collateral.allowBoletoAsColaterall\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3e9b8ccd-5c0e-44ef-b4ce-69f504a2f041",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": \"true\",\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = true but field portfolioType = D",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "049045f8-0555-48dc-a4e8-f06e3ca976aa",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2604\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo allowBoletoAsColaterall só pode ser true quando o campo portfolioType for C ou S.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "0dbdaf72-fd76-4fe2-9c48-319b3b44c12a",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"D\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = true but field portfolioType = H",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5660311a-db95-480a-b989-21acc16c63bc",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2604\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo allowBoletoAsColaterall só pode ser true quando o campo portfolioType for C ou S.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5065ebd4-c961-4654-a149-3bdc9205bd5e",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"H\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = true but field portfolioType = K",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "02e48382-e032-46ba-99ff-65e8c75158ea",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2604\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo allowBoletoAsColaterall só pode ser true quando o campo portfolioType for C ou S.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "87267746-49e8-4ade-b4d0-888e3882c049",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"K\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = true but field portfolioType = R",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e884df16-a5cf-4cc9-a1a4-4bf1ce79f299",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "e166cd2a-dfc9-4d75-960a-f16bfa480697",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2604\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo allowBoletoAsColaterall só pode ser true quando o campo portfolioType for C ou S.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"R\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = true but field portfolioType = U",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5800c60-b8b5-4930-9e0c-e0df9f043abb",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2604\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo allowBoletoAsColaterall só pode ser true quando o campo portfolioType for C ou S.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "240d8337-2958-4537-9600-1e2701d637de",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"U\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field allowBoletoAsColaterall = true but field portfolioType = V",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "11e42379-e9f4-4512-9173-916621b54f61",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2604\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo allowBoletoAsColaterall só pode ser true quando o campo portfolioType for C ou S.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7f545447-4c26-4d83-9899-2ae38437351e",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"V\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field automaticTransferToSimplePortfolio = string",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dbe7832a-1996-4b84-909a-b4929c9294fd",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo collateral.automaticTransferToSimplePortfolio do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"collateral.automaticTransferToSimplePortfolio\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e7a6a352-9c8f-496e-a61f-cdee4f581eab",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": \"true\"\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field automaticTransferToSimplePortfolio = true but allowBoletoAsColaterall = false",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "199efb06-1b00-4aad-ba54-e6266022667c",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2603\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo automaticTransferToSimplePortfolio só pode ser true se o campo allowBoletoAsColaterall for true.\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1d0aec34-cd5f-47d5-9fa7-80c97dc256f5",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": false,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field directCollection with more than 1 character",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "89c5ecaf-9877-44f3-a144-96787b6cf2eb",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo directCollection do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"directCollection\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "8141dbc0-609a-439f-8550-1740a2b5734a",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"NO\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body without field directCollection",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "16532902-b141-4c13-95a8-d285333d99c6",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo directCollection: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"directCollection\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "697714bc-be07-4b0a-af50-261267f03fd4",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field directCollection null",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "986cba80-50f3-49d2-bf1b-a3c4ecc9b310",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo directCollection: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"directCollection\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7298d820-1e48-4370-bfc5-606426704f37",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": null,\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field directCollection empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f36553f5-6cb6-4f55-95ff-6bd012458bc8",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo directCollection do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"directCollection\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fd970577-5305-476f-beac-354ea60b76b2",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field directCollection out of domain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2e6ea620-c0f8-42ba-90ed-8ca2bcb4acee",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo directCollection do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"directCollection\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "be8109c6-59e1-47ce-8b37-20dc12299142",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"S\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field code with more than 2 digits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "00b54fea-cbe8-4bf4-b4f3-9318d32c904f",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Size\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo boletoMessages[0].code: tamanho deve estar entre 1 e 2. Valor informado: [\"+ request.boletoMessages[0].code + \"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages[0].code\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6d093ba3-82b8-411d-8d6d-0b56423c99d9",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"013\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body without field code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9f06fef0-3863-4500-8277-64e3dc2d0a57",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo boletoMessages[0].code: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages[0].code\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "73a042a0-c03a-4d13-bcde-4c1b6ed606e3",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field code null",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "52b922ed-00b1-48cd-bfee-9a0e9459f112",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo boletoMessages[0].code: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages[0].code\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af27bbb4-e3e2-48ee-bac4-ef496da0d027",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": null,\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field code empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "cc7d4e18-87e5-4362-8912-deab40ee3c4b",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Size\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo boletoMessages[0].code: tamanho deve estar entre 1 e 2. Valor informado: [\" + request.boletoMessages[0].code +\"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages[0].code\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3ef46a4d-cfdb-4209-80e8-33588a83e2f7",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field order = string",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "38488a6e-031a-49b1-8055-65615ce1b854",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"MTR-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"O campo boletoMessages.[1].order do JSON enviado tem um formato inválido. \");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages.[1].order\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b5e63609-0549-43d2-b402-2f650b7b99cc",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": \"9\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with field order with more than 2 digits",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "82971b1e-bad6-4569-89ca-274266644f62",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"Max\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo boletoMessages[0].order: deve ser menor ou igual a 99. Valor informado: [\"+ request.boletoMessages[0].order + \"]\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages[0].order\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1b1c070f-5d45-466f-86df-76d9c7416e75",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 123\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body without collateral group",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "058d2372-89f7-4a26-9511-7fdebcfef21c",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "a3ed3500-3570-4b13-ba52-a950ee4707e8",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deleting previousy inserted Portfolio",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "67fbfaa7-6665-4071-859e-f66bfc4bf4d2",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with collateral group empty",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "efc0c04b-d1e2-4bda-873c-d80bacd31bf7",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "1bffddac-d7e6-4337-ae6e-b2cf7bb85e19",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deleting previousy inserted Portfolio",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f9fd082a-fdae-4c1b-9a05-738d3a361931",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body without boletoMessages group",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cf45e578-809b-445a-a87c-9b885e631b82",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ac9f19fc-8cc6-416d-83bb-e2a8a38b0c51",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\"\r\n  \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deleting previousy inserted Portfolio",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "647be2b5-d23d-4bb7-a815-65929e2bbefc",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with boletoMessages empty",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "067af2d6-5f54-4e6f-b8aa-e7bbe86fc9f1",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "4e230a46-bc98-4abc-8314-09b9ca99d1de",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"NotNull\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Campo boletoMessages[0].code: não pode ser nulo\");",
+									"     pm.expect(response.error[0].field).is.to.equal(\"boletoMessages[0].code\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Create Body",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ae4c0e2e-585e-4d9a-be71-8f130c3c610d",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "db9a3ac0-8250-4380-98ac-ed9fccd4e9cb",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Body with duplicated portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "72c84e9d-c584-4939-b91e-6eeddb84a77e",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var request = JSON.parse(request.data);",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"COB-2599\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Já existe um cadastro para a carteira \"+ request.portfolioId + \".\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d283b718-2f1f-47cb-997f-a3857c1fd104",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							],
+							"query": [
+								{
+									"key": "Idempotency-id",
+									"value": "45",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request without idempotency-id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e4e6b902-fc16-4eda-a582-0c18c8eb0259",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"IDEM-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Não foi informado identificador para controle de idempotência no request header Idempotency-id.\");",
+									"});",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1e50f97c-03ff-41ff-8420-fb042323652a",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deleting previousy inserted Portfolio",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fbaa23bd-39ab-425d-b6d2-03e3a391c163",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

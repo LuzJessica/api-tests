@@ -1,0 +1,202 @@
+{
+	"info": {
+		"_postman_id": "286fcab0-9bec-4bda-9756-46b04d6b3950",
+		"name": "PORTFOLIOS - Search many",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PORTFOLIOS - Search many",
+			"item": [
+				{
+					"name": "Request without OAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0adbec86-b0ca-43d7-8e30-3d6706ae5943",
+								"exec": [
+									"pm.test(\"Status code is 401 Unauthorized\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "8a730605-83e7-4d50-a28f-31244893e566",
+								"exec": [
+									"postman.setGlobalVariable(\"profile\", \"prod\"); // \"dev\" or \"prod\"\r",
+									"\r",
+									"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+									"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+									"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+									"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+									"} else {\r",
+									"  postman.setGlobalVariable(\"url\", \"172.17.0.2\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+									"}\r",
+									"\r",
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requesting OAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b2ca900e-57d3-455a-a78f-5793c9b58fee",
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"token\"  ,\"Bearer \" + response.access_token);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/oauth/token?grant_type=client_credentials",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Searching portfolios",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4d43d1eb-4ec3-4b7d-82c9-419f7dfe0048",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c777d454-ae37-432e-b0d7-fd530b8d0206",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "3",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

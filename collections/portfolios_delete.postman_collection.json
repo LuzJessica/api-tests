@@ -1,0 +1,488 @@
+{
+	"info": {
+		"_postman_id": "c82f97e6-b97a-4342-b341-1e411b6c3b87",
+		"name": "PORTFOLIOS - Delete",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PORTFOLIOS - Delete",
+			"item": [
+				{
+					"name": "Request without OAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ed5edc85-b354-4615-ae83-a6ce50c91219",
+								"exec": [
+									"pm.test(\"Status code is 401 Unauthorized\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e47718eb-8103-4c7e-8fd8-387b30ba9cb2",
+								"exec": [
+									"postman.setGlobalVariable(\"profile\", \"prod\"); // \"dev\" or \"prod\"\r",
+									"\r",
+									"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+									"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+									"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+									"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+									"} else {\r",
+									"  postman.setGlobalVariable(\"url\", \"172.17.0.2\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+									"}\r",
+									"\r",
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requesting OAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ee016f83-8fd4-4217-b439-6d9d21d1b9de",
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"token\"  ,\"Bearer \" + response.access_token);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{secret}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/oauth/token?grant_type=client_credentials",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inserting Portfolio for Update",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6a66a187-c5cd-4beb-9724-c290f711dfe7",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "8036b526-ca55-438a-9ebd-7a7bac8a0849",
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var request = JSON.parse(request.data);",
+									"postman.setGlobalVariable(\"portfolioId\"  , request.portfolioId);",
+									"postman.setGlobalVariable(\"description\"  , request.description);",
+									"postman.setGlobalVariable(\"portfolioType\"  , request.portfolioType);",
+									"postman.setGlobalVariable(\"feeType\"  , request.feeType);",
+									"postman.setGlobalVariable(\"currency\"  , request.currency);",
+									"postman.setGlobalVariable(\"generateRemittanceFile\"  , request.generateRemittanceFile);",
+									"postman.setGlobalVariable(\"sendBoletoEmail\"  , request.sendBoletoEmail);",
+									"postman.setGlobalVariable(\"collateral.permiteTituloComoGarantia\"  , request.collateral.allowBoletoAsColaterall);",
+									"postman.setGlobalVariable(\"collateral.transferenciaAutomaticaCarteiraSimples\"  , request.collateral.automaticTransferToSimplePortfolio);",
+									"postman.setGlobalVariable(\"directCollection\"  , request.directCollection);",
+									"postman.setGlobalVariable(\"boletoMessages.code\"  , request.boletoMessages[0].code);",
+									"postman.setGlobalVariable(\"boletoMessages.order\"  , request.boletoMessages[0].order);",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"02\",\r\n      \"order\": 1\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete existent portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5126edb3-7a18-47df-98ce-71836a70bdc9",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test(`Status code is ${pm.response.code}`, () => {",
+									"        console.log(pm.response.code);",
+									"    })",
+									"}",
+									"else {",
+									"    pm.test(`Staging is resumed with message ${pm.response.json().stagresbody.serviceStatus}`, () => {",
+									"        console.log(`Staging is resumed with message ${pm.response.json().stagresbody.serviceStatus}`);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e88e2c08-2b7a-4abb-b782-df67c1b7c34d",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete inexistent portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "160c58cc-70f6-4a6d-b2f6-86eee3ee35f7",
+								"exec": [
+									"if (pm.response.code === 204) {\r",
+									"    pm.test(`Status code is ${pm.response.code}`, () => {\r",
+									"        console.log(pm.response.code);\r",
+									"    })\r",
+									"}\r",
+									"else {\r",
+									"    pm.test(`Staging is resumed with message ${pm.response.json().stagresbody.serviceStatus}`, () => {\r",
+									"        console.log(`Staging is resumed with message ${pm.response.json().stagresbody.serviceStatus}`);\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "14116ec4-f92f-4a1a-b8bc-1f13833a3b4e",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Idempotency-id",
+								"value": "{{idempotencyId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/98",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"98"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request without idempotency-id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0a8727f8-9346-4b31-9c92-9bb0a79dfad4",
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Check error response values\", function () {",
+									"    pm.expect(response.error[0].code).is.to.equal(\"IDEM-002\");",
+									"    pm.expect(response.error[0].message).is.to.equal(\"Não foi informado identificador para controle de idempotência no request header Idempotency-id.\");",
+									"});",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "eee424f6-a82b-40ea-8e15-1cc57a4d7cb8",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"portfolios",
+								"99"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

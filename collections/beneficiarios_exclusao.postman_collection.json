@@ -1,0 +1,356 @@
+{
+	"info": {
+		"_postman_id": "55a5be44-cc85-488d-99d2-ec0e2af89244",
+		"name": "BENEFICIÁRIOS - Exclusão",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "BENEFICIÁRIOS - Remoção",
+			"item": [
+				{
+					"name": "Request sem OAuth Token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d9013be1-0cfd-4ac3-a29b-316360fabf5d",
+								"exec": [
+									"postman.setGlobalVariable(\"profile\", \"prod\"); // \"dev\" or \"prod\"\r",
+									"\r",
+									"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+									"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+									"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+									"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+									"} else {\r",
+									"  postman.setGlobalVariable(\"url\", \"172.17.0.2\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+									"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+									"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+									"}\r",
+									"\r",
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "1b3d3caa-b74e-4268-b9b4-293c1967acbc",
+								"exec": [
+									"pm.test(\"Status code is 401 Unauthorized\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requisitando OAuth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "df2ca661-1736-4bd4-8a1a-df4078a963f9",
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"token\"  ,\"Bearer \" + response.access_token);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/oauth/token?grant_type=client_credentials",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inserindo beneficiário para excluir",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "77e93943-4770-4d05-ba9a-a2520250dd9d",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "16b1b3ec-9da9-40d9-b1d6-19cfc4e6d48f",
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idBeneficiario\": 4,\r\n  \"cpfCnpjBeneficiario\": \"17300036805\",\r\n  \"tipoPessoaBeneficiario\": \"F\",\r\n  \"idGerente\": 2,\r\n  \"cpfCnpjGerente\": \"72352205387\",\r\n  \"tipoPessoaGerente\": \"F\",\r\n  \"email\": \"jessica.luz@matera.com\",\r\n  \"regraTituloDuplicado\": 1,\r\n  \"acaoCreditoBeneficiarioInapto\": 1,\r\n  \"arquivoCnab\": {\r\n    \"tipoLayout\": 0,\r\n    \"agenciaConvencaoNome\": 1,\r\n    \"contaConvencaoNome\": 201359,\r\n    \"confereSequencialRemessa\": false,\r\n    \"sequencialRemessa\": 0,\r\n    \"sequencialRetorno\": 0,\r\n    \"formaGeracaoRetorno\": \"U\",\r\n    \"notificacaoBaixaOperacional\": \"N\",\r\n    \"tipoQuebraArquivoRetorno\": \"1\",\r\n    \"usaGeracaoManual\": false,\r\n    \"usaGeracaoDiretorioBeneficiario\": false,\r\n    \"usaGeracaoConvencaoNome\": false,\r\n    \"mascaraArqUnicoConvencaoNome\": \"[agencia][conta][full]\",\r\n    \"mascaraArqParcialConvencaoNome\": \"[agencia][conta][part]\"\r\n  },\r\n  \"mensagens\": [\r\n    {\r\n      \"codigo\": \"01\",\r\n      \"ordem\": 0\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request remoção de beneficiário existente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a0588013-048b-4dce-864b-053699be7ac3",
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request remoção de beneficiário inexistente existente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5b955610-1f97-4e18-9221-9d0b7e5ff60a",
+								"exec": [
+									"pm.test(\"Status code is 204 No Content\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "71db80fb-c748-4cee-b643-4d77cf7757fd",
+								"exec": [
+									"function idempotencyIdRandom() {\r",
+									"  var n = Math.floor(Math.random() * 9999999);\r",
+									"\r",
+									"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+									"\r",
+									"    n = Math.floor(Math.random() * 9999999);\r",
+									"  }\r",
+									"\r",
+									"  return n;\r",
+									"}\r",
+									"\r",
+									"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Idempotency-id",
+								"type": "text",
+								"value": "{{idempotencyId}}"
+							}
+						],
+						"url": {
+							"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/9",
+							"protocol": "http",
+							"host": [
+								"{{url}}{{port}}{{context}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"beneficiarios",
+								"9"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

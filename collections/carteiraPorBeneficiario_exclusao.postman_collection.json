@@ -1,0 +1,583 @@
+{
+	"info": {
+		"_postman_id": "798e99fd-a3e2-45e6-bf12-35440c2ab91c",
+		"name": "CARTEIRA POR BENEFICIÁRIO - Exclusão",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Requisição sem OAuth Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ee9c7bbe-458e-471d-a401-08d203464576",
+						"exec": [
+							"pm.test(\"Status code is 401 Unauthorized\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "74bce6fd-ce75-4cb1-8668-582210f68f47",
+						"exec": [
+							"postman.setGlobalVariable(\"profile\", \"prod\"); // \"dev\" or \"prod\"\r",
+							"\r",
+							"if (pm.variables.get(\"profile\") == \"dev\") {\r",
+							"  postman.setGlobalVariable(\"url\", \"localhost\");\r",
+							"  postman.setGlobalVariable(\"context\", \"/sdcobr\");\r",
+							"  postman.setGlobalVariable(\"port\", \":8080\");\r",
+							"  postman.setGlobalVariable(\"clientId\", \"admio\");\r",
+							"  postman.setGlobalVariable(\"secret\", \"admio\");\r",
+							"} else {\r",
+							"  postman.setGlobalVariable(\"url\", \"172.17.0.2\"); // NÃO MEXER!!\r",
+							"  postman.setGlobalVariable(\"context\", \"\"); // NÃO MEXER!!\r",
+							"  postman.setGlobalVariable(\"port\", \":8080\"); // NÃO MEXER!!\r",
+							"  postman.setGlobalVariable(\"clientId\", \"TSTCOB\");\r",
+							"  postman.setGlobalVariable(\"secret\", \"TST\");\r",
+							"}\r",
+							"\r",
+							"function idempotencyIdRandom() {\r",
+							"  var n = Math.floor(Math.random() * 9999999);\r",
+							"\r",
+							"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+							"\r",
+							"    n = Math.floor(Math.random() * 9999999);\r",
+							"  }\r",
+							"\r",
+							"  return n;\r",
+							"}\r",
+							"\r",
+							"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true
+			},
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4/produtos/99",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios",
+						"4",
+						"produtos",
+						"99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Requisitando OAuth Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "62376d70-155d-4e1c-a2d5-789e7ea90182",
+						"exec": [
+							"var response = JSON.parse(responseBody);\r",
+							"postman.setGlobalVariable(\"token\"  ,\"Bearer \" + response.access_token);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{clientId}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{secret}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/oauth/token?grant_type=client_credentials",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Inserindo Beneficiário",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "idempotency-id",
+						"value": "{{idempotencyId}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"idBeneficiario\": 4,\r\n  \"cpfCnpjBeneficiario\": \"17300036805\",\r\n  \"tipoPessoaBeneficiario\": \"F\",\r\n  \"idGerente\": 2,\r\n  \"cpfCnpjGerente\": \"72352205387\",\r\n  \"tipoPessoaGerente\": \"F\",\r\n  \"email\": \"jessica.luz@matera.com\",\r\n  \"regraTituloDuplicado\": 1,\r\n  \"acaoCreditoBeneficiarioInapto\": 1,\r\n  \"arquivoCnab\": {\r\n    \"tipoLayout\": 0,\r\n    \"agenciaConvencaoNome\": 1,\r\n    \"contaConvencaoNome\": 201359,\r\n    \"confereSequencialRemessa\": false,\r\n    \"sequencialRemessa\": 0,\r\n    \"sequencialRetorno\": 0,\r\n    \"formaGeracaoRetorno\": \"U\",\r\n    \"notificacaoBaixaOperacional\": \"N\",\r\n    \"tipoQuebraArquivoRetorno\": \"1\",\r\n    \"usaGeracaoManual\": false,\r\n    \"usaGeracaoDiretorioBeneficiario\": false,\r\n    \"usaGeracaoConvencaoNome\": false,\r\n    \"mascaraArqUnicoConvencaoNome\": \"[agencia][conta][full]\",\r\n    \"mascaraArqParcialConvencaoNome\": \"[agencia][conta][part]\"\r\n  },\r\n  \"mensagens\": [\r\n    {\r\n      \"codigo\": \"01\",\r\n      \"ordem\": 0\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Inserindo Carteira",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "55d7a87d-d9d7-478f-99b7-d73547571de4",
+							"type": "string"
+						},
+						{
+							"key": "tokenType",
+							"value": "bearer",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "idempotency-id",
+						"type": "text",
+						"value": "{{idempotencyId}}"
+					},
+					{
+						"warning": "This is a duplicate header and will be overridden by the Authorization header generated by Postman.",
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"portfolioId\": 99,\r\n  \"description\": \"CARTEIRA DE TESTE 1\",\r\n  \"portfolioType\": \"C\",\r\n  \"feeType\": 10,\r\n  \"currency\": \"DOLAR\",\r\n  \"generateRemittanceFile\": true,\r\n  \"sendBoletoEmail\": false,\r\n  \"collateral\": {\r\n    \"allowBoletoAsColaterall\": true,\r\n    \"automaticTransferToSimplePortfolio\": true\r\n  },\r\n  \"directCollection\": \"N\",\r\n  \"boletoMessages\": [\r\n    {\r\n      \"code\": \"01\",\r\n      \"order\": 9\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"portfolios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Incluir Carteira por Beneficiário válido",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8ff92474-f47e-4fa2-ba0e-e1fa5a1f17d6",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "aaf0f7f0-5199-4647-b3c4-ee0f5b3cbda8",
+						"exec": [
+							"pm.test(\"Status code 201 - Operação realizada com sucesso!\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{token}}"
+					},
+					{
+						"key": "Idempotency-id",
+						"type": "text",
+						"value": "{{idempotencyId}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"idBeneficiario\": 4,\r\n  \"idProduto\": 99,\r\n  \"tarifa\": {\r\n    \"modo\": \"E\",\r\n    \"diaCobrancaMensal\": 7\r\n  },\r\n  \"prazoAceitacaoTitulo\": 1,\r\n  \"bloqueado\": false,\r\n  \"prazoDesvinculacaoGarantia\": 3,\r\n  \"juros\": {\r\n    \"taxa\": 12.34,\r\n    \"prazo\": 2\r\n  },\r\n  \"multa\": {\r\n    \"tipoValorOuPercentual\": \"P\",\r\n    \"valorOuPercentual\": 21.30,\r\n    \"prazo\": 9\r\n  },\r\n  \"prazoProtesto\": 4,\r\n  \"baixarAutomaticamente\": false,\r\n  \"prazoLimitePagamento\": 1,\r\n  \"desconto\": {\r\n    \"taxa1\": 10,\r\n    \"prazo1\": 5,\r\n    \"taxa2\": 9,\r\n    \"prazo2\": 4,\r\n    \"taxa3\": 8,\r\n    \"prazo3\": 3\r\n  },\r\n  \"pagamento\": {\r\n    \"tipoValorPagamentoAceito\": \"Q\",\r\n    \"percentualMinimo\": 12,\r\n    \"percentualMaximo\": 127,\r\n    \"numeroDePagamentosParciais\": 52\r\n  },\r\n  \"contaDepositoVinculada\": {\r\n    \"agencia\": 1,\r\n    \"conta\": 201359\r\n  },\r\n  \"contaLivreMovimentacao\": {\r\n    \"agencia\": 1,\r\n    \"conta\": 201359\r\n  },\r\n  \"contaCobranca\": {\r\n    \"banco\": 991,\r\n    \"conta\": 800555\r\n  },\r\n  \"tipoAgrupLancFinanceiro\": \"N\",\r\n  \"validaCepPagador\": false,\r\n  \"geraArquivoRetorno\": false,\r\n  \"permiteInclusaoTituloIBK\": false,\r\n  \"cobraTarifaTituloVencido\": false,\r\n  \"permiteTituloTerceiro\": false,\r\n  \"floating\": [\r\n    {\r\n      \"tipoLiquidacao\": \"ST\",\r\n      \"prazo\": 3,\r\n      \"historicoDeCreditoBeneficiario\": 1\r\n    }\r\n  ],\r\n  \"tipoTituloPermitidos\": [\r\n    \"1\"\r\n  ],\r\n  \"devolveRetTerAposAprovadores\": true,\r\n  \"envioBancoCorrespOuGrafica\": {\r\n    \"tipo\": \"DAR\",\r\n    \"prazo\": 100\r\n  },\r\n  \"mensagens\": [\r\n    {\r\n      \"codigo\": \"01\",\r\n      \"ordem\": 1\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4/produtos",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios",
+						"4",
+						"produtos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletando Carteira por Beneficiário existente ",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ee3adb78-8825-43f0-956a-cd02b8602770",
+						"exec": [
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "idempotency-id",
+						"value": "{{idempotencyId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4/produtos/99",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios",
+						"4",
+						"produtos",
+						"99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletando Carteira por Beneficiário inexistente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "48adc53b-dec2-4107-9d76-1e62788b56f7",
+						"exec": [
+							"pm.test(\"Status code is 204 No Content\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "idempotency-id",
+						"value": "{{idempotencyId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4/produtos/98",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios",
+						"4",
+						"produtos",
+						"98"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletando Carteira por Beneficiário inserido anteriormente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c7bc783a-0ea0-414b-9c4b-ab59ea5d9c9a",
+						"exec": [
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Idempotency-id",
+						"value": "{{idempotencyId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4/produtos/99",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios",
+						"4",
+						"produtos",
+						"99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletando Carteira inserida anteriormente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a1f68c8f-6ebd-474b-ae12-47b96fd4ccf5",
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    pm.test(`Status code is ${pm.response.code}`, () => {",
+							"        console.log(pm.response.code);",
+							"    })",
+							"}",
+							"else {",
+							"    pm.test(`Staging is resumed with message ${pm.response.json().stagresbody.serviceStatus}`, () => {",
+							"        console.log(`Staging is resumed with message ${pm.response.json().stagresbody.serviceStatus}`);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0c7ba2fd-bf90-4a01-a57b-dbf3a04725f7",
+						"exec": [
+							"function idempotencyIdRandom() {\r",
+							"  var n = Math.floor(Math.random() * 9999999);\r",
+							"\r",
+							"  while (n == postman.getGlobalVariable(\"idempotencyId\")) {\r",
+							"\r",
+							"    n = Math.floor(Math.random() * 9999999);\r",
+							"  }\r",
+							"\r",
+							"  return n;\r",
+							"}\r",
+							"\r",
+							"postman.setGlobalVariable(\"idempotencyId\", idempotencyIdRandom());"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Idempotency-id",
+						"value": "{{idempotencyId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/portfolios/99",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"portfolios",
+						"99"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletando Beneficiário inserido anteriormente Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "49052621-47ad-469c-a24e-b3ee8bcba0d0",
+						"exec": [
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{token}}"
+					},
+					{
+						"key": "Idempotency-id",
+						"type": "text",
+						"value": "{{idempotencyId}}"
+					}
+				],
+				"url": {
+					"raw": "http://{{url}}{{port}}{{context}}/api/v1/beneficiarios/4",
+					"protocol": "http",
+					"host": [
+						"{{url}}{{port}}{{context}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"beneficiarios",
+						"4"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
